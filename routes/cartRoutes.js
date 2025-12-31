@@ -4,7 +4,7 @@ const router = express.Router();
 const { getDb } = require("../db");
 const { ObjectId } = require("mongodb");
 
-/* ADD TO CART */
+// ADD TO CART
 router.post("/add/:productId", async (req, res) => {
   const db = getDb();
   const userId = "user1"; 
@@ -54,7 +54,7 @@ router.post("/add/:productId", async (req, res) => {
   res.json({ message: "Item added to cart" });
 });
 
-/* REMOVE FROM CART */
+// REMOVE FROM CART
 router.delete("/remove/:productId", async (req, res) => {
   const db = getDb();
   const userId = "user1";
@@ -94,5 +94,25 @@ router.get("/", async (req, res) => {
   const cart = await db.collection("carts").findOne({ userId: "user1" });
   res.json(cart || { items: [] });
 });
+
+// CLEAR CART
+router.delete("/clear", async (req, res) => {
+  const db = getDb();
+  const userId = "user1";
+
+  const cart = await db.collection("carts").findOne({ userId });
+
+  if (!cart) {
+    return res.status(404).json({ message: "Cart not found" });
+  }
+
+  await db.collection("carts").updateOne(
+    { userId },
+    { $set: { items: [] } }
+  );
+
+  res.json({ message: "Cart cleared successfully" });
+});
+
 
 module.exports = router;
